@@ -3,7 +3,6 @@ import rootReducer from '../reducers/rootR'
 import thunk from "redux-thunk";
 
 const storage = localStorage.getItem('Authorization') ? JSON.parse(localStorage.getItem('Authorization')).user : undefined;
-console.log(storage);
 const initialState = {
     user: {
         login: storage ? storage.login : 'default',

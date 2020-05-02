@@ -4,46 +4,29 @@ import store from "../stores/AccountingStore";
 
 export const login = (url, auth) => {
     return (dispatch) => {
-        let controller = new AbortController();
-        fetch(url, {
+        const init = {
             method: "POST",
             headers: {
                 Authorization: auth,
-                signal: controller.signal
+                signal: new AbortController().signal
             }
-        })
-            .then(resp => resp.ok ? resp.json() : controller.abort())
-            .then(data => {
-                dispatch(changeLogin(data.login));
-                dispatch(changeFName(data.firstName));
-                dispatch(changeLName(data.lastName));
-                dispatch(changeRoles(data.roles));
-                localStorage.setItem('Authorization', JSON.stringify({auth, user: store.getState().user}));
-                dispatch(changePosition('prof'));
-            })
-            .catch(e => alert('Wrong login or password'));
+        };
+        let errorMsg = 'Wrong login or password';
+        request(dispatch, url, init, errorMsg, auth);
     }
 };
 
 export const registration = (url, dto, auth) => {
     return (dispatch) => {
-        fetch(url, {
+        const init = {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(dto)
-        })
-            .then(resp => resp.json())
-            .then(data => {
-                dispatch(changeLogin(data.login));
-                dispatch(changeFName(data.firstName));
-                dispatch(changeLName(data.lastName));
-                dispatch(changeRoles(data.roles));
-                localStorage.setItem('Authorization', JSON.stringify({auth, user: store.getState().user}));
-                dispatch(changePosition('prof'));
-            })
-            .catch(e => console.log(e));
+        };
+        let errorMsg = 'Something wrong';
+        request(dispatch, url, init, errorMsg, auth);
     }
 };
 
@@ -68,6 +51,24 @@ export const deleteAcc = (url) => {
             .catch(e => console.log(e));
     }
 };
+
+function request(dispatch, url, init, errorMsg, auth) {
+    let controller = new AbortController();
+    fetch(url, init)
+        .then(resp => resp.ok ? resp.json() : controller.abort())
+        .then(data => {
+            dispatch(changeLogin(data.login));
+            dispatch(changeFName(data.firstName));
+            dispatch(changeLName(data.lastName));
+            dispatch(changeRoles(data.roles));
+            localStorage.setItem('Authorization', JSON.stringify({auth, user: store.getState().user}));
+            dispatch(changePosition('prof'));
+        })
+        .catch(e => {
+            alert(errorMsg);
+            console.log(e);
+        });
+}
 
 
 
