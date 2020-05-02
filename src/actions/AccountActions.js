@@ -1,5 +1,6 @@
 import {changeFName, changeLName, changeLogin, changeRoles} from "./UserActions";
 import {changePosition} from "./PositionAppActions";
+import store from "../stores/AccountingStore";
 
 export const login = (url, auth) => {
     return (dispatch) => {
@@ -13,11 +14,11 @@ export const login = (url, auth) => {
         })
             .then(resp => resp.ok ? resp.json() : controller.abort())
             .then(data => {
-                localStorage.setItem('Authorization', auth);
                 dispatch(changeLogin(data.login));
                 dispatch(changeFName(data.firstName));
                 dispatch(changeLName(data.lastName));
                 dispatch(changeRoles(data.roles));
+                localStorage.setItem('Authorization', JSON.stringify({auth, user: store.getState().user}));
                 dispatch(changePosition('prof'));
             })
             .catch(e => alert('Wrong login or password'));
@@ -35,11 +36,11 @@ export const registration = (url, dto, auth) => {
         })
             .then(resp => resp.json())
             .then(data => {
-                localStorage.setItem('Authorization', auth);
                 dispatch(changeLogin(data.login));
                 dispatch(changeFName(data.firstName));
                 dispatch(changeLName(data.lastName));
                 dispatch(changeRoles(data.roles));
+                localStorage.setItem('Authorization', JSON.stringify({auth, user: store.getState().user}));
                 dispatch(changePosition('prof'));
             })
             .catch(e => console.log(e));
@@ -48,8 +49,10 @@ export const registration = (url, dto, auth) => {
 
 export const deleteAcc = (url) => {
     return (dispatch) => {
-        let auth = localStorage.getItem('Authorization');
-        if (!auth){
+        let auth;
+        if (localStorage.getItem('Authorization')) {
+            auth = JSON.parse(localStorage.getItem('Authorization')).auth;
+        } else {
             return alert('You not authorization');
         }
         fetch(url, {

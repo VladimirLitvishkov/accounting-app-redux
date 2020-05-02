@@ -33,8 +33,10 @@ export const changeRoles = (roles) => ({
 
 export const editPassword = (url, pass) => {
     return (dispatch) => {
-        let auth = localStorage.getItem('Authorization');
-        if (!auth) {
+        let auth;
+        if (localStorage.getItem('Authorization')) {
+            auth = JSON.parse(localStorage.getItem('Authorization')).auth;
+        } else {
             return alert('You not authorization');
         }
         fetch(url, {
@@ -54,8 +56,10 @@ export const editPassword = (url, pass) => {
 
 export const editUser = (url, dto) => {
     return (dispatch) => {
-        let auth = localStorage.getItem('Authorization');
-        if (!auth) {
+        let auth;
+        if (localStorage.getItem('Authorization')) {
+            auth = JSON.parse(localStorage.getItem('Authorization')).auth;
+        } else {
             return alert('You not authorization');
         }
         fetch(url, {
